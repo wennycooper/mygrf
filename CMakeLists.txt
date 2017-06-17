@@ -140,7 +140,7 @@ include_directories(
 #   ${catkin_LIBRARIES}
 # )
 
-add_executable(mygrf_test0 src/mygrf_test0.cpp)
+add_executable(mygrf_test0 src/mygrf_test0.cpp src/grf_10d.cpp src/func0.cpp)
 target_link_libraries(mygrf_test0 ${catkin_LIBRARIES})
 
 add_executable(eigen0 src/eigen0.cpp)
