@@ -27,12 +27,28 @@ int main()
   Vector3d u2 = u1.cross(v1);
   cout << "normalize: " << u2.normalized() << endl;
 
+  Vector3d d1(1, 0, 0);
+  Vector3d d2(-1, 0, -5);
+  Vector3d d3(1, 0, -5);
+  Vector3d d4(3, 2.5, 1.5);
+
+  cout << "grf_set1A: " << grf_set1A(d1, d2, d3, d4) << endl;
+
+
+  Vector3d t1(-1, 0, 0);
+  Vector3d t2(1, 0, 0);
+  Vector3d t3(0, 0, 1);
+  Vector3d t4(2.8, 2.9, 3.1);
+
+  cout << "grf_set1B: " << grf_set1B(t1, t2, t3, t4) << endl;
+
+
   Vector3d p1(1, 0, 0);
   Vector3d p2(2, 0, 0.1);
   Vector3d p3(1, 0, 0);
   Vector3d p4(0, 0, 0);
 
-  cout << "signed_distance: " << grf_set2(p1, p2, p3, p4) << endl;
+  cout << "grf_set2: " << grf_set2(p1, p2, p3, p4) << endl;
 
 }
 
