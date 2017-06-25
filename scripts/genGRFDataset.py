@@ -5,6 +5,10 @@ import roslib
 roslib.load_manifest('mygrf')
 import tf
 import numpy as np
+import pickle
+from myGRF import grf_set1A
+from myGRF import grf_set1B
+from myGRF import grf_set2
 
 USER_PREFIX = "/tracker/user_2/"
 
@@ -30,14 +34,15 @@ RIGHT_FOOT = USER_PREFIX + "right_foot"
 
 
 if __name__ == '__main__':
-    rospy.init_node('trainKmeans', anonymous=True)
+    rospy.init_node('genGRFDataset', anonymous=True)
     
     listener = tf.TransformListener()
+    firstFlag = 1;
 
     rate = rospy.Rate(30) # 30hz
     while not rospy.is_shutdown():
         now = rospy.Time.now()
-        duration = rospy.Duration(1.0)
+        duration = rospy.Duration(10.0)
 
         try:
 
@@ -76,10 +81,60 @@ if __name__ == '__main__':
             listener.waitForTransform(TORSO, RIGHT_FOOT, now, duration)
             (right_foot, rot) = listener.lookupTransform(TORSO, RIGHT_FOOT, now)
 
-        except (tf.LookupException, tf.ConnectivityException, tf.ExtrapolationException):
+        except:
+#            print("got exception!!")
+#            print(grfDataset.shape)
+#            pickle.dump(grfDataset, open( "grfDataset_walking", "wb" ))
+#            print("dataset dump completed!! please press CTRL-C")
             continue
+
+        head_vec = np.array([head[0], head[1], head[2]])
+        neck_vec = np.array([neck[0], neck[1], neck[2]])
+        torso_vec = np.array([torso[0], torso[1], torso[2]])
+
+        left_shoulder_vec = np.array([left_shoulder[0], left_shoulder[1], left_shoulder[2]])
+        left_elbow_vec = np.array([left_elbow[0], left_elbow[1], left_elbow[2]])
+        left_hand_vec = np.array([left_hand[0], left_hand[1], left_hand[2]])
+
+        right_shoulder_vec = np.array([right_shoulder[0], right_shoulder[1], right_shoulder[2]])
+        right_elbow_vec = np.array([right_elbow[0], right_elbow[1], right_elbow[2]])
+        right_hand_vec = np.array([right_hand[0], right_hand[1], right_hand[2]])
+
+        left_hip_vec = np.array([left_hip[0], left_hip[1], left_hip[2]])
+        left_knee_vec = np.array([left_knee[0], left_knee[1], left_knee[2]])
+        left_foot_vec = np.array([left_foot[0], left_foot[1], left_foot[2]])
+
+        right_hip_vec = np.array([right_hip[0], right_hip[1], right_hip[2]])
+        right_knee_vec = np.array([right_knee[0], right_knee[1], right_knee[2]])
+        right_foot_vec = np.array([right_foot[0], right_foot[1], right_foot[2]])
+
         
-        print(right_hand)
+        F1 = grf_set1A(right_shoulder_vec, left_hip_vec, right_hip_vec, right_hand_vec)
+        F2 = grf_set1A(left_shoulder_vec, right_hip_vec, left_hip_vec, left_hand_vec)
+        F3 = grf_set1A(left_shoulder_vec, right_shoulder_vec, right_hip_vec, right_foot_vec)
+        F4 = grf_set1A(right_shoulder_vec, left_shoulder_vec, left_hip_vec, left_foot_vec)
+
+        F5 = grf_set1B(left_shoulder_vec, right_shoulder_vec, head_vec, right_hand_vec)
+        F6 = grf_set1B(left_shoulder_vec, right_shoulder_vec, head_vec, left_hand_vec)
+
+        F7 = grf_set2(right_elbow_vec, right_hand_vec, right_elbow_vec, right_shoulder_vec)
+        F8 = grf_set2(left_elbow_vec, left_hand_vec, left_elbow_vec, left_shoulder_vec)
+        F9 = grf_set2(right_knee_vec, right_foot_vec, right_knee_vec, right_hip_vec)
+        F10 = grf_set2(left_knee_vec, left_foot_vec, left_knee_vec, left_hip_vec)
+
+#        print(right_hand)
+#        print([[F1, F2, F3, F4, F5, F6, F7, F8, F9, F10]])
+        
+        i10D = np.array([F1, F2, F3, F4, F5, F6, F7, F8, F9, F10])
+        if firstFlag == 1:
+            grfDataset = i10D
+            firstFlag = 0
+        else:
+            grfDataset = np.vstack((grfDataset, i10D))
+            print(grfDataset.shape[0])
+            if grfDataset.shape[0] >= 5992:
+                pickle.dump(grfDataset, open( "grfDataset_hello", "wb" ))
+                print("dataset dump completed! Please press CTRL-C.")
         
         rate.sleep()
 
