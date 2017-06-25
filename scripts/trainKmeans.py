@@ -39,8 +39,8 @@ if __name__ == '__main__':
         now = rospy.Time.now()
         duration = rospy.Duration(1.0)
         
-        listener.waitFormTransform(TORSO, RIGHT_HAND, now, duration)
-        (trans, rot) = listener.loopupTransform(TORSO, RIGHT_HAND, now)
+        listener.waitForTransform(TORSO, RIGHT_HAND, now, duration)
+        (trans, rot) = listener.lookupTransform(TORSO, RIGHT_HAND, now)
         
         print(trans)
         
